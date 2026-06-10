@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 
-export type OrderStatus = "new" | "accepted" | "rejected";
+export type OrderStatus = "new" | "accepted" | "rejected" | "completed";
 type OrderSource = "order" | "contact";
 
 interface Order {
@@ -23,6 +23,7 @@ interface Stats {
   new: number;
   accepted: number;
   rejected: number;
+  completed: number;
   today: number;
 }
 
@@ -32,9 +33,10 @@ interface Props {
 }
 
 const STATUS_META: Record<OrderStatus, { label: string; color: string; dot: string; bg: string }> = {
-  new:      { label: "Новая",     color: "text-yellow-400", dot: "bg-yellow-400", bg: "bg-yellow-400/10 border-yellow-400/30" },
-  accepted: { label: "Принята",   color: "text-green-400",  dot: "bg-green-400",  bg: "bg-green-400/10 border-green-400/30"  },
-  rejected: { label: "Отклонена", color: "text-red-400",    dot: "bg-red-400",    bg: "bg-red-400/10 border-red-400/30"      },
+  new:       { label: "Новая",      color: "text-yellow-400", dot: "bg-yellow-400", bg: "bg-yellow-400/10 border-yellow-400/30" },
+  accepted:  { label: "Принята",    color: "text-green-400",  dot: "bg-green-400",  bg: "bg-green-400/10 border-green-400/30"  },
+  rejected:  { label: "Отклонена",  color: "text-red-400",    dot: "bg-red-400",    bg: "bg-red-400/10 border-red-400/30"      },
+  completed: { label: "Завершена",  color: "text-blue-400",   dot: "bg-blue-400",   bg: "bg-blue-400/10 border-blue-400/30"   },
 };
 
 type Tab = "all" | OrderStatus;
@@ -193,13 +195,14 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
         )}
 
         {/* ── Stats ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
           {[
-            { label: "Всего",        value: stats.total,    color: "text-white"       },
-            { label: "Новые",        value: stats.new,      color: "text-yellow-400"  },
-            { label: "Принятые",     value: stats.accepted, color: "text-green-400"   },
-            { label: "Отклонённые",  value: stats.rejected, color: "text-red-400"     },
-            { label: "Сегодня",      value: stats.today,    color: "text-blue-400"    },
+            { label: "Всего",        value: stats.total,     color: "text-white"       },
+            { label: "Новые",        value: stats.new,       color: "text-yellow-400"  },
+            { label: "Принятые",     value: stats.accepted,  color: "text-green-400"   },
+            { label: "Завершённые",  value: stats.completed, color: "text-blue-400"    },
+            { label: "Отклонённые",  value: stats.rejected,  color: "text-red-400"     },
+            { label: "Сегодня",      value: stats.today,     color: "text-purple-400"  },
           ].map((s) => (
             <div key={s.label} className="bg-[#1a1a19] border border-[#2a2a29] rounded-2xl p-4 text-center">
               <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
@@ -211,7 +214,7 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
         {/* ── Tabs + refresh ── */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex gap-1 bg-[#1a1a19] border border-[#2a2a29] p-1 rounded-xl">
-            {([ ["all", "Все"], ["new", `Новые${stats.new ? ` (${stats.new})` : ""}`], ["accepted", "Принятые"], ["rejected", "Отклонённые"] ] as [Tab, string][]).map(([v, label]) => (
+            {([ ["all", "Все"], ["new", `Новые${stats.new ? ` (${stats.new})` : ""}`], ["accepted", "Принятые"], ["completed", "Завершённые"], ["rejected", "Отклонённые"] ] as [Tab, string][]).map(([v, label]) => (
               <button
                 key={v}
                 onClick={() => setTab(v)}
@@ -295,7 +298,7 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
                   )}
 
                   {/* Actions */}
-                  {order.status === "new" ? (
+                  {order.status === "new" && (
                     <div className="flex gap-2 flex-wrap">
                       <button
                         onClick={() => changeStatus(order.id, "accepted")}
@@ -312,7 +315,26 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
                         {busy ? <Spinner /> : "❌"} Отклонить
                       </button>
                     </div>
-                  ) : (
+                  )}
+                  {order.status === "accepted" && (
+                    <div className="flex gap-2 flex-wrap">
+                      <button
+                        onClick={() => changeStatus(order.id, "completed")}
+                        disabled={busy}
+                        className="flex items-center gap-1.5 bg-blue-900/30 hover:bg-blue-900/50 border border-blue-800/40 text-blue-400 text-sm px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
+                      >
+                        {busy ? <Spinner /> : "🏁"} Завершить уборку
+                      </button>
+                      <button
+                        onClick={() => changeStatus(order.id, "rejected")}
+                        disabled={busy}
+                        className="flex items-center gap-1.5 bg-red-900/30 hover:bg-red-900/50 border border-red-800/40 text-red-400 text-sm px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
+                      >
+                        {busy ? <Spinner /> : "❌"} Отклонить
+                      </button>
+                    </div>
+                  )}
+                  {(order.status === "completed" || order.status === "rejected") && (
                     <div className="flex gap-2">
                       <button
                         onClick={() => changeStatus(order.id, "new")}

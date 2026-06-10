@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { Redis } from "@upstash/redis";
 
-export type OrderStatus = "new" | "accepted" | "rejected";
+export type OrderStatus = "new" | "accepted" | "rejected" | "completed";
 export type OrderSource = "order" | "contact";
 
 export interface Order {
@@ -61,6 +61,7 @@ export async function getStats() {
     new: orders.filter((o) => o.status === "new").length,
     accepted: orders.filter((o) => o.status === "accepted").length,
     rejected: orders.filter((o) => o.status === "rejected").length,
+    completed: orders.filter((o) => o.status === "completed").length,
     today: orders.filter((o) => o.createdAt.startsWith(today)).length,
   };
 }

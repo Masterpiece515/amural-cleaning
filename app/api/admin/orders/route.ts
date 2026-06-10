@@ -28,7 +28,7 @@ export async function PATCH(req: NextRequest) {
     });
   }
 
-  if (status === "accepted" || status === "rejected") {
+  if (status === "accepted" || status === "rejected" || status === "completed") {
     await notifyCustomer(updated, status);
   }
 

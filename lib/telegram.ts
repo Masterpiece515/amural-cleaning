@@ -72,29 +72,41 @@ export async function editMessageKeyboard(
 }
 
 /* ── Notify customer about status change ── */
-export async function notifyCustomer(order: Order, status: "accepted" | "rejected"): Promise<void> {
+export async function notifyCustomer(order: Order, status: "accepted" | "rejected" | "completed"): Promise<void> {
   const token = tok();
   if (!token || !order.customerTelegramId) return;
 
-  const accepted = status === "accepted";
-  const text = accepted
-    ? [
-        "✅ <b>Ваша заявка принята!</b>",
-        "",
-        `🧹 Услуга: ${escapeHtml(order.service || "не указана")}`,
-        order.date ? `📅 Дата: ${escapeHtml(order.date)}` : "",
-        "",
-        "Мы свяжемся с вами в ближайшее время для уточнения деталей.",
-        "",
-        "<b>Amural Cleaning</b> — г. Чита, +7 914 478-40-10",
-      ].filter(Boolean).join("\n")
-    : [
-        "❌ <b>По вашей заявке уточняем детали</b>",
-        "",
-        "Наш менеджер свяжется с вами по телефону для уточнения.",
-        "",
-        "<b>Amural Cleaning</b> — г. Чита, +7 914 478-40-10",
-      ].join("\n");
+  const texts: Record<string, string> = {
+    accepted: [
+      "✅ <b>Ваша заявка принята!</b>",
+      "",
+      `🧹 Услуга: ${escapeHtml(order.service || "не указана")}`,
+      order.date ? `📅 Дата: ${escapeHtml(order.date)}` : "",
+      "",
+      "Мы свяжемся с вами в ближайшее время для уточнения деталей.",
+      "",
+      "<b>Amural Cleaning</b> — г. Чита, +7 914 478-40-10",
+    ].filter(Boolean).join("\n"),
+    rejected: [
+      "❌ <b>По вашей заявке уточняем детали</b>",
+      "",
+      "Наш менеджер свяжется с вами по телефону для уточнения.",
+      "",
+      "<b>Amural Cleaning</b> — г. Чита, +7 914 478-40-10",
+    ].join("\n"),
+    completed: [
+      "🏁 <b>Уборка завершена!</b>",
+      "",
+      `🧹 Услуга: ${escapeHtml(order.service || "не указана")}`,
+      "",
+      "Благодарим за выбор Amural Cleaning! Будем рады видеть вас снова.",
+      "",
+      "⭐ Если всё понравилось — порекомендуйте нас друзьям!",
+      "",
+      "<b>Amural Cleaning</b> — г. Чита, +7 914 478-40-10",
+    ].join("\n"),
+  };
+  const text = texts[status];
 
   await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
