@@ -32,7 +32,7 @@ export async function GET() {
         first_name: from?.first_name as string,
       };
     })
-    .filter((c): c is { chat_id: number; username: string; first_name: string } => {
+    .filter((c: { chat_id: number; username: string; first_name: string } | null): c is { chat_id: number; username: string; first_name: string } => {
       if (!c?.chat_id || seen.has(c.chat_id)) return false;
       seen.add(c.chat_id);
       return true;
