@@ -10,6 +10,7 @@ export interface Order {
   name: string;
   phone: string;
   service: string;
+  address: string;
   date: string;
   message: string;
   source: OrderSource;

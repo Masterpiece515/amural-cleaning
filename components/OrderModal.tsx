@@ -17,6 +17,7 @@ interface FormState {
   name: string;
   phone: string;
   service: string;
+  address: string;
   date: string;
   message: string;
 }
@@ -25,6 +26,7 @@ const initialForm: FormState = {
   name: "",
   phone: "",
   service: "",
+  address: "",
   date: "",
   message: "",
 };
@@ -80,7 +82,7 @@ export default function OrderModal() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, source: "order" }),
+        body: JSON.stringify({ ...form, source: "order", address: form.address }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -201,6 +203,17 @@ export default function OrderModal() {
                 />
                 {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
               </div>
+            </div>
+
+            {/* Address */}
+            <div>
+              <input
+                type="text"
+                placeholder="Адрес (улица, дом, квартира)"
+                value={form.address}
+                onChange={set("address")}
+                className="w-full bg-[#2a2a29] border border-[#313130] rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#22720C] transition-colors"
+              />
             </div>
 
             {/* Service & Date */}

@@ -36,8 +36,9 @@ const steps = [
     title: "Уборка",
     description: "Проводим качественную уборку",
     icon: (
-      <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18" />
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 3L13.6 8.6L19.5 10L13.6 11.4L12 17L10.4 11.4L4.5 10L10.4 8.6L12 3Z"/>
+        <path d="M19 2L19.8 4.7L22.5 5.5L19.8 6.3L19 9L18.2 6.3L15.5 5.5L18.2 4.7L19 2Z" opacity="0.55"/>
       </svg>
     ),
   },

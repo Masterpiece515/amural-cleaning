@@ -6,12 +6,13 @@ import { ModalContext } from "@/components/ModalContext";
 interface FormData {
   name: string;
   phone: string;
+  address: string;
   message: string;
 }
 
 export default function KontaktyPage() {
   const { open } = useContext(ModalContext);
-  const [form, setForm] = useState<FormData>({ name: "", phone: "", message: "" });
+  const [form, setForm] = useState<FormData>({ name: "", phone: "", address: "", message: "" });
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [submitted, setSubmitted] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -208,6 +209,13 @@ export default function KontaktyPage() {
                     />
                     {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
                   </div>
+                  <input
+                    type="text"
+                    placeholder="Адрес (улица, дом, квартира)"
+                    value={form.address}
+                    onChange={set("address")}
+                    className="w-full bg-[#2a2a29] border border-[#3d3d3c] rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#22720C] transition-colors"
+                  />
                   <textarea
                     placeholder="Сообщение или вопрос..."
                     value={form.message}

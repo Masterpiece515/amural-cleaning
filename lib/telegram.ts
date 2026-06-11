@@ -26,6 +26,7 @@ export function formatOrderText(o: Order): string {
     `👤 <b>Имя:</b> ${escapeHtml(o.name)}`,
     `📞 <b>Телефон:</b> ${escapeHtml(o.phone)}`,
     o.service ? `🏷 <b>Услуга:</b> ${escapeHtml(o.service)}` : "",
+    o.address ? `📍 <b>Адрес:</b> ${escapeHtml(o.address)}` : "",
     o.date ? `📅 <b>Дата:</b> ${escapeHtml(o.date)}` : "",
     o.message ? `💬 <b>Сообщение:</b> ${escapeHtml(o.message)}` : "",
     tgLine,

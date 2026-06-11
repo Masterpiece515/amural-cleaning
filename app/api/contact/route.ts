@@ -5,12 +5,13 @@ import { sendOrderNotification } from "@/lib/telegram";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, phone, service, date, message, source } = body;
+    const { name, phone, service, address, date, message, source } = body;
 
     const order = await saveOrder({
       name: name ?? "",
       phone: phone ?? "",
       service: service ?? "",
+      address: address ?? "",
       date: date ?? "",
       message: message ?? "",
       source: source === "contact" ? "contact" : "order",
