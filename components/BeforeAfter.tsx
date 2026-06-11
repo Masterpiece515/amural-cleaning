@@ -44,12 +44,16 @@ export default function BeforeAfter() {
           onTouchMove={onTouchMove}
         >
           {/* Before */}
-          <div className="absolute inset-0 bg-[#222]">
-            <div className="w-full h-full flex items-center justify-center">
-              <BeforeScene />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d]" />
-            <div className="absolute bottom-4 left-4 bg-black/60 text-white text-sm font-semibold px-3 py-1 rounded-full">
+          <div className="absolute inset-0 bg-[#222] overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80"
+              alt="До уборки"
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ filter: "grayscale(60%) brightness(55%) sepia(20%)" }}
+            />
+            <div className="absolute inset-0 bg-black/30" />
+            <div className="absolute bottom-4 left-4 bg-black/70 text-white text-sm font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
               До
             </div>
           </div>
@@ -59,13 +63,17 @@ export default function BeforeAfter() {
             className="absolute inset-0 overflow-hidden"
             style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
           >
-            <div className="absolute inset-0 bg-[#2a2a2a]">
-              <div className="w-full h-full flex items-center justify-center">
-                <AfterScene />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-br from-[#1e2e1a] to-[#0d180a] opacity-60" />
+            <div className="absolute inset-0 bg-[#2a2a2a] overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80"
+                alt="После уборки"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ filter: "brightness(105%) saturate(115%)" }}
+              />
+              <div className="absolute inset-0 bg-[#22720C]/10" />
             </div>
-            <div className="absolute bottom-4 right-4 bg-[#22720C]/80 text-white text-sm font-semibold px-3 py-1 rounded-full">
+            <div className="absolute bottom-4 right-4 bg-[#22720C]/90 text-white text-sm font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
               После
             </div>
           </div>
@@ -88,31 +96,3 @@ export default function BeforeAfter() {
   );
 }
 
-function BeforeScene() {
-  return (
-    <svg width="300" height="200" viewBox="0 0 300 200" fill="none" opacity="0.4">
-      <rect x="20" y="20" width="260" height="160" rx="8" fill="#3d3d3c"/>
-      <rect x="40" y="40" width="100" height="60" rx="4" fill="#555"/>
-      <rect x="160" y="40" width="100" height="60" rx="4" fill="#555"/>
-      <rect x="40" y="120" width="220" height="40" rx="4" fill="#444"/>
-      {/* Mess indicators */}
-      <circle cx="80" cy="90" r="8" fill="#666"/>
-      <circle cx="130" cy="70" r="5" fill="#666"/>
-      <path d="M160 100 L200 140" stroke="#555" strokeWidth="3"/>
-    </svg>
-  );
-}
-
-function AfterScene() {
-  return (
-    <svg width="300" height="200" viewBox="0 0 300 200" fill="none" opacity="0.5">
-      <rect x="20" y="20" width="260" height="160" rx="8" fill="#2d4a28"/>
-      <rect x="40" y="40" width="100" height="60" rx="4" fill="#3a5e35"/>
-      <rect x="160" y="40" width="100" height="60" rx="4" fill="#3a5e35"/>
-      <rect x="40" y="120" width="220" height="40" rx="4" fill="#335230"/>
-      {/* Clean sparkles */}
-      <path d="M80 65 L83 72 L90 75 L83 78 L80 85 L77 78 L70 75 L77 72 Z" fill="#22720C" opacity="0.8"/>
-      <path d="M200 50 L202 55 L207 57 L202 59 L200 64 L198 59 L193 57 L198 55 Z" fill="#22720C" opacity="0.6"/>
-    </svg>
-  );
-}
