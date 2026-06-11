@@ -8,6 +8,7 @@ import Link from "next/link";
 const services = [
   {
     slug: "podderzhivayushchaya",
+    photo: "https://images.unsplash.com/photo-1675937428940-6f0ddd4ce5c6?w=800&q=80",
     title: "Поддерживающая уборка",
     subtitle: "Регулярная чистота без усилий",
     description:
@@ -29,6 +30,7 @@ const services = [
   },
   {
     slug: "generalnaya",
+    photo: "https://images.unsplash.com/photo-1663011218145-c1d0c3ba3542?w=800&q=80",
     title: "Генеральная уборка",
     subtitle: "Глубокая очистка каждого угла",
     description:
@@ -51,6 +53,7 @@ const services = [
   },
   {
     slug: "posle-remonta",
+    photo: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80",
     title: "Уборка после ремонта",
     subtitle: "Устраним последствия строительства",
     description:
@@ -72,6 +75,7 @@ const services = [
   },
   {
     slug: "mojka-okon",
+    photo: "https://images.unsplash.com/photo-1527352774566-e4916e36c645?w=800&q=80",
     title: "Мойка окон и витрин",
     subtitle: "Идеально чисто без разводов",
     description:
@@ -92,6 +96,7 @@ const services = [
   },
   {
     slug: "ofisy",
+    photo: "https://images.unsplash.com/photo-1627905646269-7f034dcc5738?w=800&q=80",
     title: "Уборка офисов и коммерческих помещений",
     subtitle: "Чистота = продуктивность",
     description:
@@ -113,6 +118,7 @@ const services = [
   },
   {
     slug: "magaziny",
+    photo: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=800&q=80",
     title: "Уборка магазинов",
     subtitle: "Торговые залы в блеске",
     description:
@@ -134,6 +140,7 @@ const services = [
   },
   {
     slug: "poly-plitka",
+    photo: "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=800&q=80",
     title: "Мытьё полов и чистка плитки",
     subtitle: "Швы и покрытия как новые",
     description:
@@ -154,6 +161,7 @@ const services = [
   },
   {
     slug: "khimchistka",
+    photo: "https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=800&q=80",
     title: "Химчистка мебели и ковров",
     subtitle: "Свежесть и чистота в каждом волокне",
     description:
@@ -208,20 +216,23 @@ export default function UslugiPage() {
               i % 2 === 1 ? "lg:grid-flow-dense" : ""
             }`}
           >
-            {/* Icon / visual */}
+            {/* Photo */}
             <div
-              className={`relative flex items-center justify-center p-12 overflow-hidden ${
+              className={`relative overflow-hidden min-h-[280px] ${
                 i % 2 === 1 ? "lg:col-start-2" : ""
               }`}
-              style={{ background: "linear-gradient(135deg, #1a2e1a 0%, #1e1e1d 60%, #141413 100%)" }}
             >
-              <div className="absolute inset-0 opacity-5">
-                <div className="absolute top-4 left-4 w-24 h-24 rounded-full border border-[#22720C]" />
-                <div className="absolute bottom-4 right-4 w-16 h-16 rounded-full border border-[#22720C]" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-[#22720C]" />
-              </div>
-              <div className="relative w-36 h-36 rounded-3xl bg-[#22720C]/15 border border-[#22720C]/20 flex items-center justify-center shadow-xl shadow-[#22720C]/10">
-                {s.icon}
+              <Image
+                src={s.photo}
+                alt={s.title}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-2xl bg-[#22720C]/80 backdrop-blur-sm flex items-center justify-center shadow-xl">
+                  {s.icon}
+                </div>
               </div>
             </div>
 
