@@ -226,6 +226,8 @@ export default function UslugiPage() {
                 src={s.photo}
                 alt={s.title}
                 fill
+                unoptimized
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-black/40" />
