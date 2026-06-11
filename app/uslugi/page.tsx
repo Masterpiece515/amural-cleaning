@@ -1,14 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import { useContext } from "react";
 import { ModalContext } from "@/components/ModalContext";
-import Link from "next/link";
 
 const services = [
   {
     slug: "podderzhivayushchaya",
-    photo: "https://images.unsplash.com/photo-1675937428940-6f0ddd4ce5c6?w=800&q=80",
+    photo: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80",
     title: "Поддерживающая уборка",
     subtitle: "Регулярная чистота без усилий",
     description:
@@ -30,7 +28,7 @@ const services = [
   },
   {
     slug: "generalnaya",
-    photo: "https://images.unsplash.com/photo-1663011218145-c1d0c3ba3542?w=800&q=80",
+    photo: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&q=80",
     title: "Генеральная уборка",
     subtitle: "Глубокая очистка каждого угла",
     description:
@@ -53,7 +51,7 @@ const services = [
   },
   {
     slug: "posle-remonta",
-    photo: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80",
+    photo: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80",
     title: "Уборка после ремонта",
     subtitle: "Устраним последствия строительства",
     description:
@@ -75,7 +73,7 @@ const services = [
   },
   {
     slug: "mojka-okon",
-    photo: "https://images.unsplash.com/photo-1527352774566-e4916e36c645?w=800&q=80",
+    photo: "https://images.unsplash.com/photo-1527352774566-e4916e36c645?auto=format&fit=crop&w=800&q=80",
     title: "Мойка окон и витрин",
     subtitle: "Идеально чисто без разводов",
     description:
@@ -96,7 +94,7 @@ const services = [
   },
   {
     slug: "ofisy",
-    photo: "https://images.unsplash.com/photo-1627905646269-7f034dcc5738?w=800&q=80",
+    photo: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80",
     title: "Уборка офисов и коммерческих помещений",
     subtitle: "Чистота = продуктивность",
     description:
@@ -118,7 +116,7 @@ const services = [
   },
   {
     slug: "magaziny",
-    photo: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=800&q=80",
+    photo: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=800&q=80",
     title: "Уборка магазинов",
     subtitle: "Торговые залы в блеске",
     description:
@@ -140,7 +138,7 @@ const services = [
   },
   {
     slug: "poly-plitka",
-    photo: "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=800&q=80",
+    photo: "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=800&q=80",
     title: "Мытьё полов и чистка плитки",
     subtitle: "Швы и покрытия как новые",
     description:
@@ -161,7 +159,7 @@ const services = [
   },
   {
     slug: "khimchistka",
-    photo: "https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=800&q=80",
+    photo: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80",
     title: "Химчистка мебели и ковров",
     subtitle: "Свежесть и чистота в каждом волокне",
     description:
@@ -222,13 +220,12 @@ export default function UslugiPage() {
                 i % 2 === 1 ? "lg:col-start-2" : ""
               }`}
             >
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={s.photo}
                 alt={s.title}
-                fill
-                unoptimized
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-black/40" />
               <div className="absolute inset-0 flex items-center justify-center">
