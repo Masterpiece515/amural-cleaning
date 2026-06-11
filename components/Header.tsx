@@ -36,12 +36,13 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <path d="M8 24 L18 8 L22 10 L14 26 Z" stroke="#22720C" strokeWidth="2" fill="none"/>
-              <path d="M8 24 C8 24 6 28 10 28 C14 28 14 24 14 26" stroke="#22720C" strokeWidth="2" fill="none"/>
-              <circle cx="24" cy="12" r="2" stroke="#22720C" strokeWidth="1.5" fill="none"/>
-              <path d="M21 16 L27 16" stroke="#22720C" strokeWidth="1.5" strokeDasharray="2 1"/>
+          <Link href="/" className="flex items-center gap-2.5">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+              <rect width="36" height="36" rx="10" fill="#22720C"/>
+              <path d="M18 8 C18 8 12 15.5 12 19.5 a6 6 0 0012 0 C24 15.5 18 8 18 8z" fill="white"/>
+              <path d="M22.5 14.5 L24.5 12.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.75"/>
+              <path d="M25 17.5 L27 17.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+              <circle cx="24" cy="12" r="1" fill="white" opacity="0.6"/>
             </svg>
             <div>
               <span className="text-white font-bold text-base leading-tight block">Amural</span>
