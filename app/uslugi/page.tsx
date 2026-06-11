@@ -227,12 +227,7 @@ export default function UslugiPage() {
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-black/40" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-20 h-20 rounded-2xl bg-[#22720C]/80 backdrop-blur-sm flex items-center justify-center shadow-xl">
-                  {s.icon}
-                </div>
-              </div>
+              <div className="absolute inset-0 bg-black/30" />
             </div>
 
             {/* Content */}
