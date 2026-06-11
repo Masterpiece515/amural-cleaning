@@ -1,46 +1,53 @@
 "use client";
 
+import Image from "next/image";
 import { useContext } from "react";
 import { ModalContext } from "./ModalContext";
 
 export default function Hero() {
   const { open } = useContext(ModalContext);
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
-      {/* Background geometric lines */}
+    <section className="relative min-h-screen flex items-center overflow-hidden pt-16 bg-[#141413]">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute top-0 right-0 w-1/3 h-full opacity-20"
-          style={{
-            background:
-              "linear-gradient(135deg, transparent 40%, #313130 40%, #313130 45%, transparent 45%, transparent 55%, #313130 55%, #313130 60%, transparent 60%)",
-          }}
-        />
-        <div className="absolute top-0 right-8 w-1 h-40 bg-white opacity-30 rotate-[30deg] origin-top" />
-        <div className="absolute top-0 right-20 w-0.5 h-32 bg-[#22720C] opacity-50 rotate-[30deg] origin-top" />
+        <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-[#22720C]/5 blur-3xl" />
+        <div className="absolute bottom-1/4 -right-32 w-80 h-80 rounded-full bg-[#22720C]/5 blur-3xl" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-16">
           {/* Left content */}
           <div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4">
-              Профессиональный
+            <span className="inline-block text-[#22720C] text-sm font-semibold uppercase tracking-widest mb-4 bg-[#22720C]/10 px-4 py-1.5 rounded-full">
+              Клининговая компания · г. Чита
+            </span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-5">
+              Профессиональная
               <br />
-              <span className="text-[#22720C]">клининг</span> для дома
+              <span className="text-[#22720C]">уборка</span> для дома
               <br />и бизнеса
             </h1>
-            <p className="text-[#22720C] text-lg font-medium mb-4">
-              Чистота&nbsp;&nbsp;◆&nbsp;&nbsp;Комфорт&nbsp;&nbsp;◆&nbsp;&nbsp;Доверие
-            </p>
             <p className="text-gray-400 text-base mb-8 max-w-md leading-relaxed">
-              Мы бережно заботимся о вашем пространстве, используем безопасные средства
-              и современное оборудование.
+              Чистота без усилий с вашей стороны. Используем профессиональные средства и современное оборудование.
             </p>
+
+            {/* Stats row */}
+            <div className="flex gap-6 mb-8">
+              {[
+                { num: "5+", label: "лет опыта" },
+                { num: "500+", label: "довольных клиентов" },
+                { num: "100%", label: "гарантия качества" },
+              ].map((s) => (
+                <div key={s.label}>
+                  <p className="text-white font-bold text-xl">{s.num}</p>
+                  <p className="text-gray-500 text-xs">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={() => open()}
-                className="flex items-center gap-2 bg-[#22720C] hover:bg-[#1a5a09] text-white font-semibold px-6 py-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex items-center gap-2 bg-[#22720C] hover:bg-[#1a5a09] text-white font-semibold px-6 py-3.5 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-[#22720C]/20"
               >
                 <BroomIcon />
                 Заказать уборку
@@ -49,31 +56,42 @@ export default function Hero() {
                 href="https://t.me/amuralcleaning"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 border border-[#313130] hover:border-[#22720C] text-white font-semibold px-6 py-3 rounded-full transition-all duration-200 hover:bg-[#313130]"
+                className="flex items-center gap-2 border border-[#313130] hover:border-[#22720C] text-white font-semibold px-6 py-3.5 rounded-full transition-all duration-200 hover:bg-[#313130]"
               >
                 <TelegramIcon />
-                Telegram
+                Написать в Telegram
               </a>
             </div>
           </div>
 
-          {/* Right — mop image placeholder */}
+          {/* Right — photo */}
           <div className="hidden lg:flex justify-end items-center">
-            <div className="relative w-80 h-80">
-              <div className="absolute inset-0 rounded-2xl overflow-hidden bg-[#313130]">
-                <div className="w-full h-full flex items-center justify-center opacity-30">
-                  <svg width="200" height="200" viewBox="0 0 200 200" fill="none">
-                    <rect x="90" y="10" width="8" height="140" rx="4" fill="#22720C"/>
-                    <ellipse cx="80" cy="155" rx="30" ry="20" fill="#22720C" opacity="0.6"/>
-                    <path d="M60 165 Q80 185 100 165" stroke="#22720C" strokeWidth="3" fill="none"/>
-                    <circle cx="115" cy="148" r="6" fill="white" opacity="0.8"/>
-                    <circle cx="125" cy="158" r="3" fill="white" opacity="0.5"/>
-                  </svg>
-                </div>
+            <div className="relative w-[480px] h-[520px] rounded-3xl overflow-hidden shadow-2xl">
+              <Image
+                src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=960&q=80"
+                alt="Профессиональная уборка Amural Cleaning"
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#141413]/80 via-[#141413]/10 to-transparent" />
+              {/* Badge */}
+              <div className="absolute top-5 right-5 bg-[#22720C] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                г. Чита
               </div>
-              {/* Decorative lines */}
-              <div className="absolute -top-4 -right-4 w-32 h-1 bg-white/20 rotate-[30deg]" />
-              <div className="absolute -top-8 -right-2 w-24 h-0.5 bg-[#22720C]/40 rotate-[30deg]" />
+              {/* Bottom stats */}
+              <div className="absolute bottom-5 left-5 right-5 grid grid-cols-3 gap-2">
+                {[
+                  { num: "5+", text: "лет опыта" },
+                  { num: "500+", text: "клиентов" },
+                  { num: "8", text: "услуг" },
+                ].map((s) => (
+                  <div key={s.text} className="bg-black/50 backdrop-blur-md rounded-xl p-3 text-center border border-white/10">
+                    <p className="text-white font-bold text-base leading-none">{s.num}</p>
+                    <p className="text-gray-300 text-[10px] mt-0.5">{s.text}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -84,8 +102,8 @@ export default function Hero() {
 
 function BroomIcon() {
   return (
-    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18" />
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18" />
     </svg>
   );
 }

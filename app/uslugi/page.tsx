@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useContext } from "react";
 import { ModalContext } from "@/components/ModalContext";
 import Link from "next/link";
@@ -151,6 +152,33 @@ const services = [
       </svg>
     ),
   },
+  {
+    slug: "khimchistka",
+    title: "Химчистка мебели и ковров",
+    subtitle: "Свежесть и чистота в каждом волокне",
+    description:
+      "Профессиональная химчистка диванов, кресел, матрасов и ковровых покрытий с использованием специализированного оборудования и безопасной химии. Выводим стойкие пятна, устраняем запахи и аллергены.",
+    includes: [
+      "Химчистка диванов и кресел",
+      "Чистка матрасов и подушек",
+      "Стирка и чистка ковров любого размера",
+      "Удаление пятен от еды, напитков, животных",
+      "Устранение неприятных запахов",
+      "Антибактериальная обработка",
+      "Сушка и восстановление формы",
+    ],
+    price: "от 1 500 ₽",
+    icon: (
+      <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="#22720C" strokeWidth={1.5}>
+        <rect x="2" y="6" width="20" height="14" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2 10h20" />
+        <circle cx="7" cy="8" r="1" fill="#22720C" />
+        <circle cx="10" cy="8" r="1" fill="#22720C" />
+        <circle cx="12" cy="16" r="3" strokeLinecap="round" strokeLinejoin="round" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 13v-1M12 20v-1M9 16H8M17 16h-2M10 14l-.7-.7M14.7 17.7l-.7-.7M14 14l.7-.7M9.3 17.7l.7-.7" strokeWidth={1} />
+      </svg>
+    ),
+  },
 ];
 
 export default function UslugiPage() {
@@ -182,11 +210,17 @@ export default function UslugiPage() {
           >
             {/* Icon / visual */}
             <div
-              className={`flex items-center justify-center bg-[#1e1e1d] p-12 ${
+              className={`relative flex items-center justify-center p-12 overflow-hidden ${
                 i % 2 === 1 ? "lg:col-start-2" : ""
               }`}
+              style={{ background: "linear-gradient(135deg, #1a2e1a 0%, #1e1e1d 60%, #141413 100%)" }}
             >
-              <div className="w-32 h-32 rounded-3xl bg-[#22720C]/10 flex items-center justify-center">
+              <div className="absolute inset-0 opacity-5">
+                <div className="absolute top-4 left-4 w-24 h-24 rounded-full border border-[#22720C]" />
+                <div className="absolute bottom-4 right-4 w-16 h-16 rounded-full border border-[#22720C]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-[#22720C]" />
+              </div>
+              <div className="relative w-36 h-36 rounded-3xl bg-[#22720C]/15 border border-[#22720C]/20 flex items-center justify-center shadow-xl shadow-[#22720C]/10">
                 {s.icon}
               </div>
             </div>
