@@ -231,6 +231,10 @@ export async function processUpdate(update: Record<string, any>): Promise<void> 
   }
 
   if (text === "/orders" || text === "/pending") {
+    if (String(fromChatId) !== chatId()) {
+      await apiSend(fromChatId, "⛔ Эта команда доступна только администратору.");
+      return;
+    }
     const pending = (await getOrders()).filter((o) => o.status === "new").slice(0, 5);
     if (!pending.length) {
       await apiSend(fromChatId, "📭 Нет новых заявок");
@@ -244,6 +248,10 @@ export async function processUpdate(update: Record<string, any>): Promise<void> 
   }
 
   if (text === "/stats") {
+    if (String(fromChatId) !== chatId()) {
+      await apiSend(fromChatId, "⛔ Эта команда доступна только администратору.");
+      return;
+    }
     const s = await getStats();
     await apiSend(fromChatId, [
       "📊 <b>Статистика Amural Cleaning</b>",
