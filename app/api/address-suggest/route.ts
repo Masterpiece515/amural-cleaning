@@ -5,31 +5,38 @@ export async function GET(request: NextRequest) {
   if (q.trim().length < 2) return NextResponse.json([]);
 
   try {
-    const text = encodeURIComponent(`Чита, ${q}`);
-    const url = `https://suggest-maps.yandex.ru/suggest-geo?text=${text}&lang=ru_RU&v=9&results=7&search_type=tp&ull=113.499432,52.034158`;
+    const query = encodeURIComponent(`Чита ${q}`);
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=7&countrycodes=ru&accept-language=ru&addressdetails=1&bounded=1&viewbox=113.1,52.4,114.1,51.7`;
 
     const res = await fetch(url, {
-      headers: { "Accept": "application/json" },
-      signal: AbortSignal.timeout(3000),
+      headers: {
+        "User-Agent": "amural-cleaning-app/1.0",
+        "Accept-Language": "ru",
+      },
+      signal: AbortSignal.timeout(4000),
     });
 
     if (!res.ok) return NextResponse.json([]);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data: any = await res.json();
+    const data: any[] = await res.json();
 
-    const suggestions: string[] = (data.results ?? [])
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((r: any) => {
-        const title = r.title?.text ?? "";
-        const sub = r.subtitle?.text ?? "";
-        if (sub && !title.toLowerCase().includes("чита")) {
-          return `${title}, ${sub}`;
-        }
-        return title;
-      })
-      .filter(Boolean)
-      .slice(0, 6);
+    const seen = new Set<string>();
+    const suggestions: string[] = [];
+
+    for (const r of data) {
+      const addr = r.address ?? {};
+      const road = addr.road ?? addr.pedestrian ?? addr.path ?? "";
+      const house = addr.house_number ?? "";
+      if (!road) continue;
+
+      const label = house ? `${road}, ${house}` : road;
+      if (!seen.has(label)) {
+        seen.add(label);
+        suggestions.push(label);
+      }
+      if (suggestions.length >= 6) break;
+    }
 
     return NextResponse.json(suggestions);
   } catch {
