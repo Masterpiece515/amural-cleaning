@@ -2,6 +2,7 @@
 
 import { useState, useContext } from "react";
 import { ModalContext } from "@/components/ModalContext";
+import AddressInput from "@/components/AddressInput";
 
 interface FormData {
   name: string;
@@ -209,11 +210,9 @@ export default function KontaktyPage() {
                     />
                     {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Адрес (улица, дом, квартира)"
+                  <AddressInput
                     value={form.address}
-                    onChange={set("address")}
+                    onChange={(v) => setForm((f) => ({ ...f, address: v }))}
                     className="w-full bg-[#2a2a29] border border-[#3d3d3c] rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#22720C] transition-colors"
                   />
                   <textarea

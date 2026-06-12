@@ -32,6 +32,7 @@ const initialForm: FormState = {
 };
 
 import { ModalContext } from "./ModalContext";
+import AddressInput from "./AddressInput";
 
 export default function OrderModal() {
   const { isOpen, close: onClose, defaultService } = useContext(ModalContext);
@@ -205,16 +206,12 @@ export default function OrderModal() {
               </div>
             </div>
 
-            {/* Address */}
-            <div>
-              <input
-                type="text"
-                placeholder="Адрес (улица, дом, квартира)"
-                value={form.address}
-                onChange={set("address")}
-                className="w-full bg-[#2a2a29] border border-[#313130] rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#22720C] transition-colors"
-              />
-            </div>
+            {/* Address with autocomplete */}
+            <AddressInput
+              value={form.address}
+              onChange={(v) => setForm((f) => ({ ...f, address: v }))}
+              className="w-full bg-[#2a2a29] border border-[#313130] rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#22720C] transition-colors"
+            />
 
             {/* Service & Date */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
