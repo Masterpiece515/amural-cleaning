@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ModalProvider } from "@/components/ModalContext";
+import { UserProvider } from "@/components/UserContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import OrderModal from "@/components/OrderModal";
+import AuthModal from "@/components/AuthModal";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -25,12 +27,15 @@ export default function RootLayout({
   return (
     <html lang="ru" className="h-full antialiased">
       <body className={`${inter.className} min-h-full flex flex-col bg-[#141413] text-white`}>
-        <ModalProvider>
-          <Header />
-          {children}
-          <Footer />
-          <OrderModal />
-        </ModalProvider>
+        <UserProvider>
+          <ModalProvider>
+            <Header />
+            {children}
+            <Footer />
+            <OrderModal />
+            <AuthModal />
+          </ModalProvider>
+        </UserProvider>
       </body>
     </html>
   );

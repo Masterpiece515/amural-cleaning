@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useContext } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { ModalContext } from "./ModalContext";
+import { useUser } from "./UserContext";
 
 const navLinks = [
   { label: "Услуги", href: "/uslugi" },
@@ -16,7 +17,9 @@ const navLinks = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { open } = useContext(ModalContext);
+  const { user, logout, openAuth } = useUser();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -65,15 +68,39 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Phone + order */}
+          {/* Phone + auth */}
           <div className="hidden md:flex items-center gap-3">
-            <a
-              href="tel:+79144784010"
-              className="flex items-center gap-2 bg-[#22720C] hover:bg-[#1a5a09] text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors"
-            >
+            <a href="tel:+79144784010" className="flex items-center gap-2 bg-[#22720C] hover:bg-[#1a5a09] text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors">
               <PhoneIcon />
               +7 914 478-40-10
             </a>
+            {user ? (
+              <div className="relative">
+                <button onClick={() => setUserMenuOpen((v) => !v)} className="flex items-center gap-2 bg-[#313130] hover:bg-[#3d3d3c] text-white text-sm font-semibold px-3 py-2 rounded-full transition-colors">
+                  <div className="w-6 h-6 rounded-full bg-[#22720C] flex items-center justify-center text-xs font-bold">
+                    {user.name[0].toUpperCase()}
+                  </div>
+                  <span className="max-w-[100px] truncate">{user.name}</span>
+                </button>
+                {userMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 bg-[#1e1e1d] border border-[#313130] rounded-2xl shadow-xl overflow-hidden min-w-[160px] z-50">
+                    <Link href="/profil" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-[#313130] transition-colors">
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                      Мой профиль
+                    </Link>
+                    <button onClick={() => { logout(); setUserMenuOpen(false); }} className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-[#313130] transition-colors">
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                      Выйти
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button onClick={() => openAuth("login")} className="flex items-center gap-1.5 border border-[#313130] hover:border-[#22720C] text-gray-300 hover:text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Войти
+              </button>
+            )}
           </div>
 
           {/* Mobile burger */}
