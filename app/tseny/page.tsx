@@ -157,8 +157,12 @@ export default function TsenyPage() {
                 max={10}
                 value={rooms}
                 onChange={(e) => setRooms(Number(e.target.value))}
-                className="w-full h-2 rounded-lg appearance-none cursor-pointer"
-                style={{ accentColor: "#22720C" }}
+                className="w-full appearance-none cursor-pointer"
+                style={{
+                  height: "10px",
+                  borderRadius: "9999px",
+                  background: `linear-gradient(to right, #22720C 0%, #22720C ${((rooms - 1) / 9) * 100}%, #4a4a49 ${((rooms - 1) / 9) * 100}%, #4a4a49 100%)`,
+                }}
               />
               <div className="flex justify-between text-gray-500 text-xs mt-1">
                 <span>1</span><span>5</span><span>10</span>
