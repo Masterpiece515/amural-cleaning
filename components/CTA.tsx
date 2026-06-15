@@ -21,8 +21,9 @@ export default function CTA() {
               onClick={() => open()}
               className="flex items-center gap-2 bg-[#22720C] hover:bg-[#1a5a09] text-white font-semibold px-7 py-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
             >
-              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18" />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L13.8 8.2L20 10L13.8 11.8L12 18L10.2 11.8L4 10L10.2 8.2L12 2Z"/>
+                <path d="M19.5 2L20.4 5.1L23.5 6L20.4 6.9L19.5 10L18.6 6.9L15.5 6L18.6 5.1L19.5 2Z" opacity="0.7"/>
               </svg>
               Заказать уборку
             </button>

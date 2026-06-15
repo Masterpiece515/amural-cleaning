@@ -63,11 +63,11 @@ export default function Reviews() {
           Отзывы наших <span className="text-[#22720C]">клиентов</span>
         </h2>
 
-        <div className="relative">
+        <div className="flex items-center gap-4">
           {/* Prev button */}
           <button
             onClick={prev}
-            className="absolute -left-4 sm:-left-8 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#313130] hover:bg-[#22720C] text-white flex items-center justify-center transition-colors"
+            className="flex-shrink-0 w-10 h-10 rounded-full bg-[#313130] hover:bg-[#22720C] text-white flex items-center justify-center transition-colors"
             aria-label="Назад"
           >
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -76,7 +76,7 @@ export default function Reviews() {
           </button>
 
           {/* Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 flex-1 overflow-hidden">
             {visibleReviews.map((review, i) => (
               <div
                 key={`${current}-${i}`}
@@ -95,7 +95,7 @@ export default function Reviews() {
           {/* Next button */}
           <button
             onClick={next}
-            className="absolute -right-4 sm:-right-8 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#313130] hover:bg-[#22720C] text-white flex items-center justify-center transition-colors"
+            className="flex-shrink-0 w-10 h-10 rounded-full bg-[#313130] hover:bg-[#22720C] text-white flex items-center justify-center transition-colors"
             aria-label="Вперед"
           >
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
