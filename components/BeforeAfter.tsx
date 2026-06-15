@@ -47,12 +47,11 @@ export default function BeforeAfter() {
           <div className="absolute inset-0 bg-[#222] overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80"
+              src="/images/before.jpg"
               alt="До уборки"
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ filter: "brightness(60%) saturate(60%) sepia(30%)" }}
             />
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-black/20" />
             <div className="absolute bottom-4 left-4 bg-black/70 text-white text-sm font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
               До
             </div>
@@ -66,10 +65,10 @@ export default function BeforeAfter() {
             <div className="absolute inset-0 overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80"
+                src="/images/after.jpg"
                 alt="После уборки"
                 className="absolute inset-0 w-full h-full object-cover"
-                style={{ filter: "brightness(108%) saturate(110%)" }}
+                style={{ filter: "brightness(105%) saturate(105%)" }}
               />
               <div className="absolute inset-0 bg-[#22720C]/8" />
             </div>
