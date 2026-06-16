@@ -66,9 +66,12 @@ export default function HowWeWork() {
           Как мы <span className="text-[#22720C]">работаем</span>
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6 mb-12">
+        <div className="flex flex-wrap justify-center gap-6 mb-12">
           {steps.map((step, i) => (
-            <div key={step.num} className="relative flex flex-col items-center text-center">
+            <div
+              key={step.num}
+              className="relative flex flex-col items-center text-center w-full sm:w-[calc(50%-12px)] lg:w-[calc(20%-19.2px)]"
+            >
               {/* Connector line */}
               {i < steps.length - 1 && (
                 <div className="hidden lg:block absolute top-10 left-1/2 w-full h-0.5 bg-[#313130] z-0" />

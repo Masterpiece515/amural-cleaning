@@ -58,9 +58,12 @@ export default function WhyUs() {
         {/* Advantages */}
         <div className="bg-[#313130] rounded-2xl p-8">
           <h3 className="text-xl font-semibold text-[#22720C] mb-6 text-center">Почему выбирают нас</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             {advantages.map((adv) => (
-              <div key={adv.text} className="flex items-center gap-3 bg-[#3d3d3c] rounded-xl px-5 py-4">
+              <div
+                key={adv.text}
+                className="flex items-center gap-3 bg-[#3d3d3c] rounded-xl px-5 py-4 w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-10.667px)]"
+              >
                 <span className="text-[#22720C] flex-shrink-0">
                   <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

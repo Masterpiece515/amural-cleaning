@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const reviews = [
   {
@@ -49,7 +49,18 @@ function StarRating({ count }: { count: number }) {
 
 export default function Reviews() {
   const [current, setCurrent] = useState(0);
-  const visible = 3;
+  const [visible, setVisible] = useState(3);
+
+  useEffect(() => {
+    const updateVisible = () => {
+      if (window.innerWidth < 640) setVisible(1);
+      else if (window.innerWidth < 1024) setVisible(2);
+      else setVisible(3);
+    };
+    updateVisible();
+    window.addEventListener("resize", updateVisible);
+    return () => window.removeEventListener("resize", updateVisible);
+  }, []);
 
   const prev = () => setCurrent((c) => (c - 1 + reviews.length) % reviews.length);
   const next = () => setCurrent((c) => (c + 1) % reviews.length);

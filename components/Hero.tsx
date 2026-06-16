@@ -14,7 +14,7 @@ export default function Hero() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-12 items-center py-12 lg:py-16">
           {/* Left content */}
           <div>
             <span className="inline-block text-[#22720C] text-sm font-semibold uppercase tracking-widest mb-4 bg-[#22720C]/10 px-4 py-1.5 rounded-full">
@@ -31,7 +31,7 @@ export default function Hero() {
             </p>
 
             {/* Stats row */}
-            <div className="flex gap-6 mb-8">
+            <div className="flex flex-wrap gap-4 sm:gap-6 mb-8">
               {[
                 { num: "5+", label: "лет опыта" },
                 { num: "500+", label: "довольных клиентов" },
@@ -65,8 +65,8 @@ export default function Hero() {
           </div>
 
           {/* Right — photo */}
-          <div className="hidden lg:flex justify-end items-center">
-            <div className="relative w-[480px] h-[520px] rounded-3xl overflow-hidden shadow-2xl">
+          <div className="hidden md:flex justify-center lg:justify-end items-center">
+            <div className="relative w-full max-w-[380px] lg:max-w-[480px] aspect-[12/13] rounded-3xl overflow-hidden shadow-2xl">
               <Image
                 src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=960&q=80"
                 alt="Профессиональная уборка Amural Cleaning"

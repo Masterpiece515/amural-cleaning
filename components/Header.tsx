@@ -54,7 +54,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -69,7 +69,7 @@ export default function Header() {
           </nav>
 
           {/* Phone + auth */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             <a href="tel:+79144784010" className="flex items-center gap-2 bg-[#22720C] hover:bg-[#1a5a09] text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors">
               <PhoneIcon />
               +7 914 478-40-10
@@ -103,49 +103,80 @@ export default function Header() {
             )}
           </div>
 
-          {/* Mobile burger */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-white p-2"
-            aria-label="Меню"
-          >
-            {menuOpen ? (
-              <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
-        </div>
-
-        {/* Mobile menu */}
-        {menuOpen && (
-          <div className="md:hidden bg-[#1e1e1d] rounded-xl mt-1 mb-2 p-4 flex flex-col gap-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={closeMenu}
-                className={`text-sm font-medium py-2 border-b border-[#313130] last:border-0 transition-colors ${
-                  pathname === link.href ? "text-[#22720C]" : "text-gray-300"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+          {/* Tablet/mobile: quick call + burger */}
+          <div className="flex lg:hidden items-center gap-2">
             <a
               href="tel:+79144784010"
-              className="flex items-center justify-center gap-2 bg-[#22720C] text-white text-sm font-semibold px-4 py-3 rounded-full mt-2"
+              aria-label="Позвонить"
+              className="w-10 h-10 rounded-full bg-[#22720C] hover:bg-[#1a5a09] text-white flex items-center justify-center transition-colors flex-shrink-0"
+            >
+              <PhoneIcon />
+            </a>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="text-white p-2"
+              aria-label="Меню"
+            >
+              {menuOpen ? (
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile/tablet menu */}
+        {menuOpen && (
+          <div className="lg:hidden bg-[#1e1e1d] rounded-xl mt-1 mb-2 p-4 flex flex-col gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={closeMenu}
+                  className={`text-sm font-medium py-2 border-b border-[#313130] transition-colors ${
+                    pathname === link.href ? "text-[#22720C]" : "text-gray-300"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+            {user ? (
+              <Link
+                href="/profil"
+                onClick={closeMenu}
+                className="flex items-center justify-center gap-2 bg-[#313130] text-white text-sm font-semibold px-4 py-3 rounded-full mt-2"
+              >
+                <div className="w-5 h-5 rounded-full bg-[#22720C] flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                  {user.name[0].toUpperCase()}
+                </div>
+                Мой профиль
+              </Link>
+            ) : (
+              <button
+                onClick={() => { closeMenu(); openAuth("login"); }}
+                className="flex items-center justify-center gap-2 border border-[#313130] text-white text-sm font-semibold px-4 py-3 rounded-full mt-2"
+              >
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Войти
+              </button>
+            )}
+            <a
+              href="tel:+79144784010"
+              className="flex items-center justify-center gap-2 bg-[#22720C] text-white text-sm font-semibold px-4 py-3 rounded-full"
             >
               <PhoneIcon />
               +7 914 478-40-10
             </a>
             <button
               onClick={() => { closeMenu(); open(); }}
-              className="flex items-center justify-center bg-[#313130] text-white text-sm font-semibold px-4 py-3 rounded-full"
+              className="flex items-center justify-center bg-[#3d3d3c] text-white text-sm font-semibold px-4 py-3 rounded-full"
             >
               Заказать уборку
             </button>

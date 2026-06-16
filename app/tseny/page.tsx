@@ -187,9 +187,12 @@ export default function TsenyPage() {
           <h2 className="text-2xl font-bold mb-6">
             Дополнительные <span className="text-[#22720C]">услуги</span>
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             {extras.map((ex) => (
-              <div key={ex.name} className="bg-[#313130] rounded-2xl px-6 py-4 flex justify-between items-center">
+              <div
+                key={ex.name}
+                className="bg-[#313130] rounded-2xl px-6 py-4 flex justify-between items-center w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-10.667px)]"
+              >
                 <span className="text-gray-300 text-sm">{ex.name}</span>
                 <span className="text-[#22720C] font-semibold text-sm whitespace-nowrap ml-4">{ex.price}</span>
               </div>
