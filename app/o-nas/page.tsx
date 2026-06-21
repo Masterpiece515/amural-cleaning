@@ -90,10 +90,10 @@ export default function ONasPage() {
             <div className="absolute top-0 right-0 w-32 h-1 bg-white/10 rotate-[30deg] origin-right translate-x-8 -translate-y-4" />
             <div className="absolute top-4 right-4 w-24 h-0.5 bg-[#22720C]/30 rotate-[30deg] origin-right" />
             <svg width="64" height="64" viewBox="0 0 32 32" fill="none">
-              <path d="M8 24 L18 8 L22 10 L14 26 Z" stroke="#22720C" strokeWidth="2" fill="none"/>
-              <path d="M8 24 C8 24 6 28 10 28 C14 28 14 24 14 26" stroke="#22720C" strokeWidth="2" fill="none"/>
-              <circle cx="24" cy="12" r="2" stroke="#22720C" strokeWidth="1.5" fill="none"/>
-              <path d="M21 16 L27 16" stroke="#22720C" strokeWidth="1.5" strokeDasharray="2 1"/>
+              <path d="M6 26 L10 14 L22 14 L26 26 Z" stroke="#22720C" strokeWidth="2" fill="none" strokeLinejoin="round"/>
+              <path d="M10 14 C10 10 22 10 22 14" stroke="#22720C" strokeWidth="2" fill="none"/>
+              <path d="M14 18 L14 23 M18 18 L18 23" stroke="#22720C" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M4 26 L28 26" stroke="#22720C" strokeWidth="2" strokeLinecap="round"/>
             </svg>
             <div className="text-3xl font-bold leading-tight">
               Amural<br /><span className="text-[#22720C]">Cleaning</span>

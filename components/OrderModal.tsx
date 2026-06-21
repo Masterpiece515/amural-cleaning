@@ -33,14 +33,23 @@ const initialForm: FormState = {
 
 import { ModalContext } from "./ModalContext";
 import AddressInput from "./AddressInput";
+import { useUser } from "./UserContext";
 
 export default function OrderModal() {
   const { isOpen, close: onClose, defaultService } = useContext(ModalContext);
+  const { user } = useUser();
   const [form, setForm] = useState<FormState>({ ...initialForm, service: defaultService });
 
   useEffect(() => {
-    if (isOpen) setForm((f) => ({ ...f, service: defaultService || f.service }));
-  }, [isOpen, defaultService]);
+    if (isOpen) {
+      setForm((f) => ({
+        ...f,
+        service: defaultService || f.service,
+        name: user?.name || f.name,
+        phone: user?.phone || f.phone,
+      }));
+    }
+  }, [isOpen, defaultService, user]);
   const [submitted, setSubmitted] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [telegramLinked, setTelegramLinked] = useState(false);

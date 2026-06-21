@@ -186,9 +186,10 @@ export default function TsenyPage() {
             {extras.map((ex) => (
               <div
                 key={ex.name}
-                className="bg-[#313130] rounded-2xl px-6 py-4 flex justify-between items-center w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-10.667px)]"
+                onClick={() => open(ex.name)}
+                className="bg-[#313130] hover:bg-[#3d3d3c] hover:border-[#22720C]/50 border border-transparent rounded-2xl px-6 py-4 flex justify-between items-center w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-10.667px)] cursor-pointer transition-all group"
               >
-                <span className="text-gray-300 text-sm">{ex.name}</span>
+                <span className="text-gray-300 group-hover:text-white text-sm transition-colors">{ex.name}</span>
                 <span className="text-[#22720C] font-semibold text-sm whitespace-nowrap ml-4">{ex.price}</span>
               </div>
             ))}
@@ -210,8 +211,8 @@ export default function TsenyPage() {
           </div>
           <div className="bg-[#313130] rounded-2xl p-6 flex flex-col justify-between gap-4">
             <div>
-              <p className="text-white font-semibold mb-1">Скидки и акции</p>
-              <p className="text-gray-400 text-sm">Постоянным клиентам — скидка 10%. При заказе от 3 уборок в месяц — специальные условия.</p>
+              <p className="text-white font-semibold mb-1">Нужен индивидуальный расчёт?</p>
+              <p className="text-gray-400 text-sm">Оставьте заявку — мы свяжемся и подберём оптимальную стоимость под ваш объём и условия.</p>
             </div>
             <button
               onClick={() => open()}
