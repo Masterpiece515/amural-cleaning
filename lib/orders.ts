@@ -51,8 +51,8 @@ export async function getOrders(limit = 500): Promise<Order[]> {
   const r = getRedis();
   await migrateIfNeeded(r);
 
-  // zrevrange = newest first (highest score = latest timestamp)
-  const ids = await r.zrevrange<string[]>(INDEX_KEY, 0, limit - 1);
+  // newest first (highest score = latest timestamp)
+  const ids = await r.zrange<string[]>(INDEX_KEY, 0, limit - 1, { rev: true });
   if (!ids.length) return [];
 
   // Batch-fetch all orders in a single round-trip
