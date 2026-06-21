@@ -60,6 +60,14 @@ export async function updateUser(
   return users[idx];
 }
 
+export async function deleteUser(id: string): Promise<boolean> {
+  const users = await getUsers();
+  const next = users.filter((u) => u.id !== id);
+  if (next.length === users.length) return false;
+  await getRedis().set(KEY, next);
+  return true;
+}
+
 export function toPublic(u: User): PublicUser {
   const { passwordHash: _, ...pub } = u;
   return pub;

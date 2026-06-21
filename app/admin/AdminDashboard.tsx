@@ -28,6 +28,16 @@ interface Stats {
   today: number;
 }
 
+interface UserRecord {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  createdAt: string;
+  telegramId?: string;
+  orderCount: number;
+}
+
 interface Props {
   initialOrders: Order[];
   initialStats: Stats;
@@ -40,7 +50,8 @@ const STATUS_META = {
   completed: { label: "Завершена", color: "text-sky-400",     dot: "bg-sky-400",     bg: "bg-sky-400/10 border-sky-400/30"        },
 } as const;
 
-type Tab = "all" | OrderStatus;
+type OrderTab = "all" | OrderStatus;
+type Section = "orders" | "users";
 
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -56,9 +67,12 @@ function relativeTime(iso: string): string {
 }
 
 export default function AdminDashboard({ initialOrders, initialStats }: Props) {
+  const [section, setSection]       = useState<Section>("orders");
+
+  // Orders state
   const [orders, setOrders]         = useState<Order[]>(initialOrders);
   const [stats, setStats]           = useState<Stats>(initialStats);
-  const [tab, setTab]               = useState<Tab>("all");
+  const [tab, setTab]               = useState<OrderTab>("all");
   const [search, setSearch]         = useState("");
   const [updating, setUpdating]     = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -69,6 +83,14 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
   const [detail, setDetail]         = useState<Order | null>(null);
   const [copied, setCopied]         = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Users state
+  const [users, setUsers]           = useState<UserRecord[]>([]);
+  const [usersLoaded, setUsersLoaded] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [userSearch, setUserSearch] = useState("");
+  const [deletingUser, setDeletingUser] = useState<string | null>(null);
+  const [userDetail, setUserDetail] = useState<UserRecord | null>(null);
 
   const refresh = useCallback(async () => {
     setRefreshing(true);
@@ -81,6 +103,24 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
     setRefreshing(false);
   }, []);
 
+  const loadUsers = useCallback(async () => {
+    setUsersLoading(true);
+    const res = await fetch("/api/admin/users");
+    if (res.ok) {
+      const d = await res.json();
+      setUsers(d.users);
+      setUsersLoaded(true);
+    }
+    setUsersLoading(false);
+  }, []);
+
+  // Load users when switching to users tab
+  useEffect(() => {
+    if (section === "users" && !usersLoaded) {
+      loadUsers();
+    }
+  }, [section, usersLoaded, loadUsers]);
+
   useEffect(() => {
     if (autoRefresh) {
       timerRef.current = setInterval(refresh, 30000);
@@ -91,7 +131,12 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
   }, [autoRefresh, refresh]);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setDetail(null); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setDetail(null);
+        setUserDetail(null);
+      }
+    };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
@@ -117,6 +162,20 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
       });
     }
     setUpdating(null);
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    setDeletingUser(userId);
+    const res = await fetch("/api/admin/users", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userId }),
+    });
+    if (res.ok) {
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      if (userDetail?.id === userId) setUserDetail(null);
+    }
+    setDeletingUser(null);
   };
 
   const copyPhone = async (phone: string, e: React.MouseEvent) => {
@@ -155,7 +214,8 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
     window.location.href = "/admin/login";
   };
 
-  const filtered = orders.filter((o) => {
+  // Order filtering
+  const filteredOrders = orders.filter((o) => {
     if (tab !== "all" && o.status !== tab) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -169,13 +229,24 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
     return true;
   });
 
-  const tabCounts: Record<Tab, number> = {
+  const tabCounts: Record<OrderTab, number> = {
     all: orders.length,
     new: stats.new,
     accepted: stats.accepted,
     completed: stats.completed,
     rejected: stats.rejected,
   };
+
+  // User filtering
+  const filteredUsers = users.filter((u) => {
+    if (!userSearch.trim()) return true;
+    const q = userSearch.toLowerCase();
+    return (
+      u.name.toLowerCase().includes(q) ||
+      u.phone.includes(q) ||
+      u.email.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="fixed inset-0 z-[200] bg-[#0f0f0e] overflow-y-auto text-white">
@@ -195,43 +266,45 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
             )}
           </div>
 
-          {/* Search (desktop) */}
-          <div className="flex-1 max-w-xs hidden sm:block">
-            <div className="relative">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Поиск по имени, телефону, услуге..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-[#1a1a19] border border-[#242423] rounded-xl pl-8 pr-8 py-1.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#22720C]/50 transition-colors"
-              />
-              {search && (
-                <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-300 transition-colors text-xs">
-                  ✕
-                </button>
+          {/* Section switcher */}
+          <div className="flex gap-1 bg-[#1a1a19] border border-[#1e1e1d] p-1 rounded-xl">
+            <button
+              onClick={() => setSection("orders")}
+              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${section === "orders" ? "bg-[#22720C] text-white" : "text-gray-500 hover:text-white"}`}
+            >
+              Заявки
+            </button>
+            <button
+              onClick={() => setSection("users")}
+              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${section === "users" ? "bg-[#22720C] text-white" : "text-gray-500 hover:text-white"}`}
+            >
+              Клиенты
+              {users.length > 0 && (
+                <span className={`ml-1 text-xs font-bold ${section === "users" ? "text-green-200" : "text-gray-600"}`}>{users.length}</span>
               )}
-            </div>
+            </button>
           </div>
 
           <div className="flex items-center gap-1 flex-shrink-0">
-            <button
-              onClick={() => setAutoRefresh((v) => !v)}
-              title={autoRefresh ? "Выключить авто-обновление" : "Авто-обновление каждые 30 секунд"}
-              className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-colors ${autoRefresh ? "text-[#22720C] bg-[#22720C]/10" : "text-gray-500 hover:text-white hover:bg-[#1a1a19]"}`}
-            >
-              <span className={autoRefresh ? "animate-pulse" : ""}>⬤</span>
-              <span className="hidden sm:inline">Live</span>
-            </button>
-            <button
-              onClick={() => { setTgOpen((v) => !v); setPollMsg(""); }}
-              className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-colors ${tgOpen ? "bg-[#22720C]/20 text-[#22720C]" : "text-gray-500 hover:text-white hover:bg-[#1a1a19]"}`}
-            >
-              <IconTg />
-              <span className="hidden sm:inline">TG</span>
-            </button>
+            {section === "orders" && (
+              <>
+                <button
+                  onClick={() => setAutoRefresh((v) => !v)}
+                  title={autoRefresh ? "Выключить авто-обновление" : "Авто-обновление каждые 30 секунд"}
+                  className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-colors ${autoRefresh ? "text-[#22720C] bg-[#22720C]/10" : "text-gray-500 hover:text-white hover:bg-[#1a1a19]"}`}
+                >
+                  <span className={autoRefresh ? "animate-pulse" : ""}>⬤</span>
+                  <span className="hidden sm:inline">Live</span>
+                </button>
+                <button
+                  onClick={() => { setTgOpen((v) => !v); setPollMsg(""); }}
+                  className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-colors ${tgOpen ? "bg-[#22720C]/20 text-[#22720C]" : "text-gray-500 hover:text-white hover:bg-[#1a1a19]"}`}
+                >
+                  <IconTg />
+                  <span className="hidden sm:inline">TG</span>
+                </button>
+              </>
+            )}
             <a href="/" className="text-xs text-gray-500 hover:text-white px-3 py-2 rounded-lg hover:bg-[#1a1a19] transition-colors hidden sm:block">
               Сайт ↗
             </a>
@@ -244,277 +317,367 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
 
       <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col gap-5">
 
-        {/* ── Telegram panel ── */}
-        {tgOpen && (
-          <div className="bg-[#1a1a19] border border-[#242423] rounded-2xl p-5">
-            <p className="text-sm font-semibold mb-4">Telegram — управление ботом</p>
-            <div className="flex flex-wrap gap-2.5">
-              <button
-                onClick={pollTelegram}
-                disabled={polling}
-                className="flex items-center gap-2 bg-[#242423] hover:bg-[#2a2a29] disabled:opacity-50 text-sm px-4 py-2.5 rounded-xl transition-colors"
-              >
-                {polling ? <Spinner /> : <IconRefresh />}
-                Проверить обновления
-              </button>
-              <button
-                onClick={setWebhook}
-                className="flex items-center gap-2 bg-[#242423] hover:bg-[#2a2a29] text-sm px-4 py-2.5 rounded-xl transition-colors"
-              >
-                <IconLink />
-                Установить Webhook
-              </button>
-              <a
-                href="https://t.me/Amural_Cleaningbot"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-[#229ED9]/10 hover:bg-[#229ED9]/20 border border-[#229ED9]/20 text-[#229ED9] text-sm px-4 py-2.5 rounded-xl transition-colors"
-              >
-                <IconTg />
-                @Amural_Cleaningbot
-              </a>
-            </div>
-            {pollMsg && (
-              <p className="text-xs text-gray-400 mt-3 font-mono break-all bg-[#141413] px-3 py-2 rounded-xl">{pollMsg}</p>
-            )}
-            <p className="text-xs text-gray-600 mt-3">
-              Локально: нажмите «Проверить обновления». При деплое: установите Webhook один раз.
-            </p>
-          </div>
-        )}
-
-        {/* ── Stats ── */}
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-          {[
-            { label: "Всего",       value: stats.total,     color: "text-white"       },
-            { label: "Новые",       value: stats.new,       color: "text-amber-400"   },
-            { label: "Принятые",    value: stats.accepted,  color: "text-emerald-400" },
-            { label: "Завершённые", value: stats.completed, color: "text-sky-400"     },
-            { label: "Отклонённые", value: stats.rejected,  color: "text-red-400"     },
-            { label: "Сегодня",     value: stats.today,     color: "text-purple-400"  },
-          ].map((s) => (
-            <div key={s.label} className="bg-[#1a1a19] border border-[#1e1e1d] rounded-2xl p-3 text-center">
-              <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-gray-600 text-[10px] mt-0.5 uppercase tracking-wide">{s.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Mobile search ── */}
-        <div className="sm:hidden relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Поиск..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#1a1a19] border border-[#242423] rounded-xl pl-8 pr-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#22720C]/50 transition-colors"
-          />
-        </div>
-
-        {/* ── Tabs + refresh ── */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex gap-1 bg-[#1a1a19] border border-[#1e1e1d] p-1 rounded-xl overflow-x-auto">
-            {([
-              ["all",       "Все"],
-              ["new",       "Новые"],
-              ["accepted",  "Принятые"],
-              ["completed", "Завершённые"],
-              ["rejected",  "Отклонённые"],
-            ] as [Tab, string][]).map(([v, label]) => (
-              <button
-                key={v}
-                onClick={() => setTab(v)}
-                className={`relative flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${tab === v ? "bg-[#22720C] text-white" : "text-gray-500 hover:text-white"}`}
-              >
-                {label}
-                {tabCounts[v] > 0 && (
-                  <span className={`ml-1 text-xs font-bold ${tab === v ? "text-green-200" : "text-gray-600"}`}>
-                    {tabCounts[v]}
-                  </span>
+        {/* ════════════════════════════════════ ORDERS SECTION ════════════════════════════════════ */}
+        {section === "orders" && (
+          <>
+            {/* ── Telegram panel ── */}
+            {tgOpen && (
+              <div className="bg-[#1a1a19] border border-[#242423] rounded-2xl p-5">
+                <p className="text-sm font-semibold mb-4">Telegram — управление ботом</p>
+                <div className="flex flex-wrap gap-2.5">
+                  <button
+                    onClick={pollTelegram}
+                    disabled={polling}
+                    className="flex items-center gap-2 bg-[#242423] hover:bg-[#2a2a29] disabled:opacity-50 text-sm px-4 py-2.5 rounded-xl transition-colors"
+                  >
+                    {polling ? <Spinner /> : <IconRefresh />}
+                    Проверить обновления
+                  </button>
+                  <button
+                    onClick={setWebhook}
+                    className="flex items-center gap-2 bg-[#242423] hover:bg-[#2a2a29] text-sm px-4 py-2.5 rounded-xl transition-colors"
+                  >
+                    <IconLink />
+                    Установить Webhook
+                  </button>
+                  <a
+                    href="https://t.me/Amural_Cleaningbot"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 bg-[#229ED9]/10 hover:bg-[#229ED9]/20 border border-[#229ED9]/20 text-[#229ED9] text-sm px-4 py-2.5 rounded-xl transition-colors"
+                  >
+                    <IconTg />
+                    @Amural_Cleaningbot
+                  </a>
+                </div>
+                {pollMsg && (
+                  <p className="text-xs text-gray-400 mt-3 font-mono break-all bg-[#141413] px-3 py-2 rounded-xl">{pollMsg}</p>
                 )}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={refresh}
-            disabled={refreshing}
-            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-white transition-colors disabled:opacity-50 flex-shrink-0"
-          >
-            <span className={refreshing ? "animate-spin inline-block" : "inline-block"}><IconRefresh /></span>
-            Обновить
-          </button>
-        </div>
-
-        {/* ── Orders list ── */}
-        {filtered.length === 0 ? (
-          <div className="text-center py-20 text-gray-600">
-            <p className="text-5xl mb-4">📭</p>
-            <p className="text-sm">{search ? "Ничего не найдено" : "Заявок нет"}</p>
-            {search && (
-              <button onClick={() => setSearch("")} className="mt-2 text-xs text-[#22720C] hover:text-green-400 transition-colors">
-                Сбросить поиск
-              </button>
+                <p className="text-xs text-gray-600 mt-3">
+                  Локально: нажмите «Проверить обновления». При деплое: установите Webhook один раз.
+                </p>
+              </div>
             )}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2.5">
-            {filtered.map((order) => {
-              const m = STATUS_META[order.status];
-              const busy = updating === order.id;
-              return (
-                <div
-                  key={order.id}
-                  className="bg-[#1a1a19] border border-[#1e1e1d] hover:border-[#2a2a29] rounded-2xl p-4 sm:p-5 transition-colors"
-                >
-                  {/* Row 1: status + time */}
-                  <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold border px-2.5 py-1 rounded-full ${m.bg} ${m.color}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${m.dot}`} />
-                        {m.label.toUpperCase()}
-                      </span>
-                      <span className="text-gray-600 text-xs">
-                        {order.source === "order" ? "уборка" : "обращение"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span
-                        className="text-gray-600 text-xs cursor-default"
-                        title={new Date(order.createdAt).toLocaleString("ru-RU", {
-                          day: "2-digit", month: "2-digit", year: "numeric",
-                          hour: "2-digit", minute: "2-digit",
-                        })}
-                      >
-                        {relativeTime(order.createdAt)}
-                      </span>
-                      <button
-                        onClick={() => setDetail(order)}
-                        className="text-xs text-gray-600 hover:text-[#22720C] transition-colors"
-                      >
-                        Подробнее →
-                      </button>
-                    </div>
-                  </div>
 
-                  {/* Row 2: client + service */}
-                  <div className="flex items-start justify-between gap-4 mb-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-white font-semibold">{order.name}</span>
-                        {order.customerTelegramId && (
-                          <span className="text-[#229ED9] text-[10px] bg-[#229ED9]/10 border border-[#229ED9]/20 px-1.5 py-0.5 rounded-full">TG</span>
+            {/* ── Stats ── */}
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {[
+                { label: "Всего",       value: stats.total,     color: "text-white"       },
+                { label: "Новые",       value: stats.new,       color: "text-amber-400"   },
+                { label: "Принятые",    value: stats.accepted,  color: "text-emerald-400" },
+                { label: "Завершённые", value: stats.completed, color: "text-sky-400"     },
+                { label: "Отклонённые", value: stats.rejected,  color: "text-red-400"     },
+                { label: "Сегодня",     value: stats.today,     color: "text-purple-400"  },
+              ].map((s) => (
+                <div key={s.label} className="bg-[#1a1a19] border border-[#1e1e1d] rounded-2xl p-3 text-center">
+                  <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+                  <p className="text-gray-600 text-[10px] mt-0.5 uppercase tracking-wide">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* ── Search ── */}
+            <div className="relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Поиск по имени, телефону, услуге, адресу..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-[#1a1a19] border border-[#242423] rounded-xl pl-8 pr-8 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#22720C]/50 transition-colors"
+              />
+              {search && (
+                <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-300 transition-colors text-xs">
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* ── Tabs + refresh ── */}
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex gap-1 bg-[#1a1a19] border border-[#1e1e1d] p-1 rounded-xl overflow-x-auto">
+                {([
+                  ["all",       "Все"],
+                  ["new",       "Новые"],
+                  ["accepted",  "Принятые"],
+                  ["completed", "Завершённые"],
+                  ["rejected",  "Отклонённые"],
+                ] as [OrderTab, string][]).map(([v, label]) => (
+                  <button
+                    key={v}
+                    onClick={() => setTab(v)}
+                    className={`relative flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${tab === v ? "bg-[#22720C] text-white" : "text-gray-500 hover:text-white"}`}
+                  >
+                    {label}
+                    {tabCounts[v] > 0 && (
+                      <span className={`ml-1 text-xs font-bold ${tab === v ? "text-green-200" : "text-gray-600"}`}>
+                        {tabCounts[v]}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={refresh}
+                disabled={refreshing}
+                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-white transition-colors disabled:opacity-50 flex-shrink-0"
+              >
+                <span className={refreshing ? "animate-spin inline-block" : "inline-block"}><IconRefresh /></span>
+                Обновить
+              </button>
+            </div>
+
+            {/* ── Orders list ── */}
+            {filteredOrders.length === 0 ? (
+              <div className="text-center py-20 text-gray-600">
+                <p className="text-5xl mb-4">📭</p>
+                <p className="text-sm">{search ? "Ничего не найдено" : "Заявок нет"}</p>
+                {search && (
+                  <button onClick={() => setSearch("")} className="mt-2 text-xs text-[#22720C] hover:text-green-400 transition-colors">
+                    Сбросить поиск
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2.5">
+                {filteredOrders.map((order) => {
+                  const m = STATUS_META[order.status];
+                  const busy = updating === order.id;
+                  return (
+                    <div
+                      key={order.id}
+                      className="bg-[#1a1a19] border border-[#1e1e1d] hover:border-[#2a2a29] rounded-2xl p-4 sm:p-5 transition-colors"
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold border px-2.5 py-1 rounded-full ${m.bg} ${m.color}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${m.dot}`} />
+                            {m.label.toUpperCase()}
+                          </span>
+                          <span className="text-gray-600 text-xs">
+                            {order.source === "order" ? "уборка" : "обращение"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span
+                            className="text-gray-600 text-xs cursor-default"
+                            title={new Date(order.createdAt).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                          >
+                            {relativeTime(order.createdAt)}
+                          </span>
+                          <button onClick={() => setDetail(order)} className="text-xs text-gray-600 hover:text-[#22720C] transition-colors">
+                            Подробнее →
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-white font-semibold">{order.name}</span>
+                            {order.customerTelegramId && (
+                              <span className="text-[#229ED9] text-[10px] bg-[#229ED9]/10 border border-[#229ED9]/20 px-1.5 py-0.5 rounded-full">TG</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 group">
+                            <a href={`tel:${order.phone}`} className="text-[#22720C] hover:text-green-400 text-sm transition-colors hover:underline">
+                              {order.phone}
+                            </a>
+                            <button onClick={(e) => copyPhone(order.phone, e)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-gray-300 transition-all text-[10px]">
+                              {copied === order.phone ? "✓ скопировано" : "копировать"}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="text-right flex flex-col gap-0.5">
+                          {order.service && <span className="text-gray-300 text-xs">{order.service}</span>}
+                          {order.date    && <span className="text-gray-500 text-xs">📅 {order.date}</span>}
+                        </div>
+                      </div>
+
+                      {order.address && (
+                        <p className="text-xs text-gray-500 mb-3 flex items-center gap-1.5">
+                          <IconPin />
+                          {order.address}
+                        </p>
+                      )}
+
+                      {order.message && (
+                        <p className="text-xs text-gray-500 bg-[#141413] rounded-xl px-3 py-2 mb-3 line-clamp-2">
+                          {order.message}
+                        </p>
+                      )}
+
+                      <div className="flex gap-2 flex-wrap">
+                        {order.status === "new" && (
+                          <>
+                            <ActionBtn onClick={() => changeStatus(order.id, "accepted")} busy={busy} color="green">✅ Принять</ActionBtn>
+                            <ActionBtn onClick={() => changeStatus(order.id, "rejected")} busy={busy} color="red">❌ Отклонить</ActionBtn>
+                          </>
+                        )}
+                        {order.status === "accepted" && (
+                          <>
+                            <ActionBtn onClick={() => changeStatus(order.id, "completed")} busy={busy} color="blue">🏁 Завершить</ActionBtn>
+                            <ActionBtn onClick={() => changeStatus(order.id, "rejected")} busy={busy} color="red">❌ Отклонить</ActionBtn>
+                          </>
+                        )}
+                        {(order.status === "completed" || order.status === "rejected") && (
+                          <button onClick={() => changeStatus(order.id, "new")} disabled={busy} className="text-xs text-gray-600 hover:text-gray-300 transition-colors disabled:opacity-50">
+                            Вернуть в новые
+                          </button>
                         )}
                       </div>
-                      <div className="flex items-center gap-1.5 group">
-                        <a
-                          href={`tel:${order.phone}`}
-                          className="text-[#22720C] hover:text-green-400 text-sm transition-colors hover:underline"
-                        >
-                          {order.phone}
-                        </a>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ════════════════════════════════════ USERS SECTION ════════════════════════════════════ */}
+        {section === "users" && (
+          <>
+            {/* ── Users header ── */}
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <h2 className="text-lg font-bold">Клиенты</h2>
+                <p className="text-gray-600 text-sm">Зарегистрированные пользователи сайта</p>
+              </div>
+              <button
+                onClick={loadUsers}
+                disabled={usersLoading}
+                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-white transition-colors disabled:opacity-50"
+              >
+                <span className={usersLoading ? "animate-spin inline-block" : "inline-block"}><IconRefresh /></span>
+                Обновить
+              </button>
+            </div>
+
+            {/* ── User search ── */}
+            <div className="relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Поиск по имени, телефону, email..."
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                className="w-full bg-[#1a1a19] border border-[#242423] rounded-xl pl-8 pr-8 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#22720C]/50 transition-colors"
+              />
+              {userSearch && (
+                <button onClick={() => setUserSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-300 transition-colors text-xs">✕</button>
+              )}
+            </div>
+
+            {/* ── Users list ── */}
+            {usersLoading ? (
+              <div className="flex items-center justify-center py-20 text-gray-600">
+                <Spinner />
+                <span className="ml-3 text-sm">Загрузка...</span>
+              </div>
+            ) : filteredUsers.length === 0 ? (
+              <div className="text-center py-20 text-gray-600">
+                <p className="text-5xl mb-4">👤</p>
+                <p className="text-sm">{userSearch ? "Ничего не найдено" : "Нет зарегистрированных клиентов"}</p>
+                {userSearch && (
+                  <button onClick={() => setUserSearch("")} className="mt-2 text-xs text-[#22720C] hover:text-green-400 transition-colors">Сбросить поиск</button>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2.5">
+                {filteredUsers.map((user) => (
+                  <div
+                    key={user.id}
+                    className="bg-[#1a1a19] border border-[#1e1e1d] hover:border-[#2a2a29] rounded-2xl p-4 sm:p-5 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      {/* Avatar + info */}
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-full bg-[#22720C]/10 border border-[#22720C]/20 flex items-center justify-center flex-shrink-0 text-[#22720C] font-bold text-sm">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-white font-semibold">{user.name}</span>
+                            {user.telegramId && (
+                              <span className="text-[#229ED9] text-[10px] bg-[#229ED9]/10 border border-[#229ED9]/20 px-1.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                                <IconTg /> TG
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex flex-wrap gap-x-4 gap-y-0.5">
+                            <a href={`tel:${user.phone}`} className="text-[#22720C] hover:text-green-400 text-sm transition-colors">
+                              {user.phone}
+                            </a>
+                            <span className="text-gray-500 text-sm">{user.email}</span>
+                          </div>
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="text-gray-600 text-xs" title={new Date(user.createdAt).toLocaleString("ru-RU")}>
+                              Регистрация: {relativeTime(user.createdAt)}
+                            </span>
+                            {user.orderCount > 0 && (
+                              <span className="text-emerald-400 text-xs font-medium">
+                                {user.orderCount} {user.orderCount === 1 ? "заявка" : user.orderCount < 5 ? "заявки" : "заявок"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 flex-shrink-0">
                         <button
-                          onClick={(e) => copyPhone(order.phone, e)}
-                          className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-gray-300 transition-all text-[10px]"
+                          onClick={() => setUserDetail(user)}
+                          className="text-xs text-gray-600 hover:text-[#22720C] transition-colors whitespace-nowrap"
                         >
-                          {copied === order.phone ? "✓ скопировано" : "копировать"}
+                          Подробнее →
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user.id)}
+                          disabled={deletingUser === user.id}
+                          className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-red-400 transition-colors disabled:opacity-50 px-2 py-1 rounded-lg hover:bg-red-900/20"
+                        >
+                          {deletingUser === user.id ? <Spinner /> : <IconTrash />}
                         </button>
                       </div>
                     </div>
-                    <div className="text-right flex flex-col gap-0.5">
-                      {order.service && <span className="text-gray-300 text-xs">{order.service}</span>}
-                      {order.date    && <span className="text-gray-500 text-xs">📅 {order.date}</span>}
-                    </div>
                   </div>
-
-                  {order.address && (
-                    <p className="text-xs text-gray-500 mb-3 flex items-center gap-1.5">
-                      <IconPin />
-                      {order.address}
-                    </p>
-                  )}
-
-                  {order.message && (
-                    <p className="text-xs text-gray-500 bg-[#141413] rounded-xl px-3 py-2 mb-3 line-clamp-2">
-                      {order.message}
-                    </p>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex gap-2 flex-wrap">
-                    {order.status === "new" && (
-                      <>
-                        <ActionBtn onClick={() => changeStatus(order.id, "accepted")} busy={busy} color="green">✅ Принять</ActionBtn>
-                        <ActionBtn onClick={() => changeStatus(order.id, "rejected")} busy={busy} color="red">❌ Отклонить</ActionBtn>
-                      </>
-                    )}
-                    {order.status === "accepted" && (
-                      <>
-                        <ActionBtn onClick={() => changeStatus(order.id, "completed")} busy={busy} color="blue">🏁 Завершить</ActionBtn>
-                        <ActionBtn onClick={() => changeStatus(order.id, "rejected")} busy={busy} color="red">❌ Отклонить</ActionBtn>
-                      </>
-                    )}
-                    {(order.status === "completed" || order.status === "rejected") && (
-                      <button
-                        onClick={() => changeStatus(order.id, "new")}
-                        disabled={busy}
-                        className="text-xs text-gray-600 hover:text-gray-300 transition-colors disabled:opacity-50"
-                      >
-                        Вернуть в новые
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* ── Detail modal ── */}
+      {/* ── Order detail modal ── */}
       {detail && (
         <div
           className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
           onClick={(e) => e.target === e.currentTarget && setDetail(null)}
         >
           <div className="bg-[#1a1a19] border border-[#2a2a29] rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
-            {/* Modal header */}
             <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[#242423]">
               <div className="flex items-center gap-2.5">
                 <span className={`w-2.5 h-2.5 rounded-full ${STATUS_META[detail.status].dot}`} />
-                <span className={`font-bold ${STATUS_META[detail.status].color}`}>
-                  {STATUS_META[detail.status].label}
-                </span>
-                <span className="text-gray-600 text-sm">
-                  · {detail.source === "order" ? "заявка на уборку" : "обращение"}
-                </span>
+                <span className={`font-bold ${STATUS_META[detail.status].color}`}>{STATUS_META[detail.status].label}</span>
+                <span className="text-gray-600 text-sm">· {detail.source === "order" ? "заявка на уборку" : "обращение"}</span>
               </div>
-              <button
-                onClick={() => setDetail(null)}
-                className="w-8 h-8 rounded-full bg-[#242423] hover:bg-[#2a2a29] text-gray-400 hover:text-white flex items-center justify-center transition-colors text-sm"
-              >
-                ✕
-              </button>
+              <button onClick={() => setDetail(null)} className="w-8 h-8 rounded-full bg-[#242423] hover:bg-[#2a2a29] text-gray-400 hover:text-white flex items-center justify-center transition-colors text-sm">✕</button>
             </div>
 
             <div className="px-6 py-5 flex flex-col gap-4">
-              {/* Client block */}
               <div className="bg-[#141413] rounded-2xl p-4">
                 <p className="text-gray-600 text-[10px] uppercase tracking-widest mb-2">Клиент</p>
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-white font-semibold text-lg">{detail.name}</p>
-                  {detail.customerTelegramId && (
-                    <span className="text-[#229ED9] text-[10px] bg-[#229ED9]/10 border border-[#229ED9]/20 px-2 py-0.5 rounded-full">TG привязан</span>
-                  )}
+                  {detail.customerTelegramId && <span className="text-[#229ED9] text-[10px] bg-[#229ED9]/10 border border-[#229ED9]/20 px-2 py-0.5 rounded-full">TG привязан</span>}
                 </div>
-                <a href={`tel:${detail.phone}`} className="text-[#22720C] hover:text-green-400 transition-colors text-sm">
-                  {detail.phone}
-                </a>
+                <a href={`tel:${detail.phone}`} className="text-[#22720C] hover:text-green-400 transition-colors text-sm">{detail.phone}</a>
               </div>
 
-              {/* Details grid */}
               <div className="grid grid-cols-2 gap-2.5">
                 {detail.service && (
                   <div className="bg-[#141413] rounded-xl p-3">
@@ -536,12 +699,7 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
                 )}
                 <div className="bg-[#141413] rounded-xl p-3">
                   <p className="text-gray-600 text-[10px] uppercase tracking-widest mb-1">Создана</p>
-                  <p className="text-white text-sm">
-                    {new Date(detail.createdAt).toLocaleString("ru-RU", {
-                      day: "2-digit", month: "2-digit", year: "numeric",
-                      hour: "2-digit", minute: "2-digit",
-                    })}
-                  </p>
+                  <p className="text-white text-sm">{new Date(detail.createdAt).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
                 </div>
                 <div className="bg-[#141413] rounded-xl p-3">
                   <p className="text-gray-600 text-[10px] uppercase tracking-widest mb-1">Тип</p>
@@ -556,7 +714,6 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
                 </div>
               )}
 
-              {/* Actions in modal */}
               <div className="flex gap-2 flex-wrap">
                 {detail.status === "new" && (
                   <>
@@ -571,17 +728,76 @@ export default function AdminDashboard({ initialOrders, initialStats }: Props) {
                   </>
                 )}
                 {(detail.status === "completed" || detail.status === "rejected") && (
-                  <button
-                    onClick={() => changeStatus(detail.id, "new")}
-                    disabled={updating === detail.id}
-                    className="text-xs text-gray-600 hover:text-gray-300 transition-colors disabled:opacity-50"
-                  >
+                  <button onClick={() => changeStatus(detail.id, "new")} disabled={updating === detail.id} className="text-xs text-gray-600 hover:text-gray-300 transition-colors disabled:opacity-50">
                     Вернуть в новые
                   </button>
                 )}
               </div>
 
               <p className="text-gray-700 text-[10px] font-mono">ID: {detail.id}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── User detail modal ── */}
+      {userDetail && (
+        <div
+          className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={(e) => e.target === e.currentTarget && setUserDetail(null)}
+        >
+          <div className="bg-[#1a1a19] border border-[#2a2a29] rounded-3xl w-full max-w-md shadow-2xl">
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[#242423]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#22720C]/10 border border-[#22720C]/20 flex items-center justify-center text-[#22720C] font-bold">
+                  {userDetail.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-white font-semibold">{userDetail.name}</p>
+                  {userDetail.telegramId && (
+                    <span className="text-[#229ED9] text-[10px] inline-flex items-center gap-1"><IconTg /> TG привязан</span>
+                  )}
+                </div>
+              </div>
+              <button onClick={() => setUserDetail(null)} className="w-8 h-8 rounded-full bg-[#242423] hover:bg-[#2a2a29] text-gray-400 hover:text-white flex items-center justify-center transition-colors text-sm">✕</button>
+            </div>
+
+            <div className="px-6 py-5 flex flex-col gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="bg-[#141413] rounded-xl p-3">
+                  <p className="text-gray-600 text-[10px] uppercase tracking-widest mb-1">Телефон</p>
+                  <a href={`tel:${userDetail.phone}`} className="text-[#22720C] hover:text-green-400 transition-colors text-sm">{userDetail.phone}</a>
+                </div>
+                <div className="bg-[#141413] rounded-xl p-3">
+                  <p className="text-gray-600 text-[10px] uppercase tracking-widest mb-1">Заявок</p>
+                  <p className="text-white text-sm font-semibold">{userDetail.orderCount}</p>
+                </div>
+                <div className="bg-[#141413] rounded-xl p-3 col-span-2">
+                  <p className="text-gray-600 text-[10px] uppercase tracking-widest mb-1">Email</p>
+                  <p className="text-white text-sm">{userDetail.email}</p>
+                </div>
+                <div className="bg-[#141413] rounded-xl p-3">
+                  <p className="text-gray-600 text-[10px] uppercase tracking-widest mb-1">Регистрация</p>
+                  <p className="text-white text-sm">{new Date(userDetail.createdAt).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" })}</p>
+                </div>
+                <div className="bg-[#141413] rounded-xl p-3">
+                  <p className="text-gray-600 text-[10px] uppercase tracking-widest mb-1">Telegram</p>
+                  <p className={`text-sm font-medium ${userDetail.telegramId ? "text-[#229ED9]" : "text-gray-600"}`}>
+                    {userDetail.telegramId ? "Привязан" : "Не привязан"}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-gray-700 text-[10px] font-mono">ID: {userDetail.id}</p>
+
+              <button
+                onClick={() => handleDeleteUser(userDetail.id)}
+                disabled={deletingUser === userDetail.id}
+                className="flex items-center justify-center gap-2 bg-red-900/20 hover:bg-red-900/40 border border-red-800/30 text-red-400 text-sm px-4 py-2.5 rounded-xl transition-colors disabled:opacity-50 mt-1"
+              >
+                {deletingUser === userDetail.id ? <Spinner /> : <IconTrash />}
+                Удалить клиента
+              </button>
             </div>
           </div>
         </div>
@@ -653,6 +869,14 @@ function IconPin() {
     <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="flex-shrink-0">
       <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+}
+
+function IconTrash() {
+  return (
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
     </svg>
   );
 }
