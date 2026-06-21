@@ -26,6 +26,7 @@ export default function ProfilPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [tgLinked, setTgLinked] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -38,7 +39,7 @@ export default function ProfilPage() {
     if (!user) return;
     fetch("/api/auth/me")
       .then((r) => r.json())
-      .then((d) => { setOrders(d.orders ?? []); setOrdersLoading(false); })
+      .then((d) => { setOrders(d.orders ?? []); setTgLinked(!!d.user?.telegramId); setOrdersLoading(false); })
       .catch(() => setOrdersLoading(false));
   }, [user]);
 
@@ -67,6 +68,31 @@ export default function ProfilPage() {
             </svg>
             Выйти
           </button>
+        </div>
+
+        {/* Telegram link */}
+        <div className={`flex items-center gap-4 rounded-2xl p-4 mb-6 border ${tgLinked ? "bg-[#0f2a1a] border-[#22720C]/30" : "bg-[#1e1e1d] border-[#313130]"}`}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="#229ED9" className="flex-shrink-0">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z" />
+          </svg>
+          <div className="flex-1">
+            <p className="text-white text-sm font-semibold">Telegram уведомления</p>
+            <p className="text-gray-400 text-xs mt-0.5">
+              {tgLinked ? "Привязан — уведомления приходят автоматически" : "Привяжите Telegram чтобы получать статусы заявок"}
+            </p>
+          </div>
+          {tgLinked ? (
+            <span className="text-green-400 text-xs font-semibold bg-green-400/10 px-3 py-1 rounded-full">✓ Привязан</span>
+          ) : (
+            <a
+              href={`https://t.me/Amural_Cleaningbot?start=user_${user.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#229ED9] hover:bg-[#1a85b8] text-white text-xs font-semibold px-4 py-2 rounded-full transition-colors whitespace-nowrap"
+            >
+              Привязать
+            </a>
+          )}
         </div>
 
         {/* Info cards */}

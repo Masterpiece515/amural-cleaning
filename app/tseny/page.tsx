@@ -123,11 +123,6 @@ export default function TsenyPage() {
                   </li>
                 ))}
               </ul>
-              {plan.note && (
-                <p className="text-[#22720C] text-xs border border-[#22720C]/30 rounded-lg px-3 py-2 bg-[#22720C]/5">
-                  {plan.note}
-                </p>
-              )}
               <button
                 onClick={() => open(plan.name + " " + plan.freq)}
                 className={`w-full py-3 rounded-full font-semibold transition-all hover:scale-105 ${

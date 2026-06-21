@@ -8,6 +8,7 @@ export interface User {
   email: string;
   passwordHash: string;
   createdAt: string;
+  telegramId?: string;
 }
 
 export type PublicUser = Omit<User, "passwordHash">;
@@ -45,6 +46,18 @@ export async function createUser(data: Omit<User, "id" | "createdAt">): Promise<
   const user: User = { ...data, id: randomUUID(), createdAt: new Date().toISOString() };
   await getRedis().set(KEY, [user, ...users]);
   return user;
+}
+
+export async function updateUser(
+  id: string,
+  updates: Partial<Pick<User, "telegramId">>
+): Promise<User | null> {
+  const users = await getUsers();
+  const idx = users.findIndex((u) => u.id === id);
+  if (idx === -1) return null;
+  Object.assign(users[idx], updates);
+  await getRedis().set(KEY, users);
+  return users[idx];
 }
 
 export function toPublic(u: User): PublicUser {

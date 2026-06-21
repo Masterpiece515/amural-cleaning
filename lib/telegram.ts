@@ -1,4 +1,5 @@
 import { getOrders, updateOrder, getStats, Order } from "./orders";
+import { findUserById, updateUser } from "./users";
 
 function tok() { return process.env.TELEGRAM_BOT_TOKEN ?? ""; }
 function chatId() { return process.env.TELEGRAM_CHAT_ID ?? ""; }
@@ -183,6 +184,26 @@ export async function processUpdate(update: Record<string, any>): Promise<void> 
   if (!msg?.text) return;
   const text: string = msg.text;
   const fromChatId: number = msg.chat.id;
+
+  /* /start user_{userId} — link Telegram to user account */
+  if (text.startsWith("/start user_")) {
+    const userId = text.replace("/start user_", "").trim();
+    const user = await findUserById(userId);
+    if (user) {
+      await updateUser(userId, { telegramId: String(fromChatId) });
+      await apiSend(fromChatId, [
+        "✅ <b>Telegram успешно привязан!</b>",
+        "",
+        `Привет, ${escapeHtml(user.name)}!`,
+        "Теперь уведомления о статусе заявок будут приходить сюда автоматически — без лишних шагов.",
+        "",
+        "<b>Amural Cleaning</b> — г. Чита, +7 914 478-40-10",
+      ].join("\n"));
+    } else {
+      await apiSend(fromChatId, "❌ Ссылка недействительна. Попробуйте ещё раз из личного кабинета.");
+    }
+    return;
+  }
 
   /* /start ORDER_ID — customer links their Telegram to an order */
   if (text.startsWith("/start")) {

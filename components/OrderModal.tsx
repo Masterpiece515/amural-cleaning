@@ -43,6 +43,7 @@ export default function OrderModal() {
   }, [isOpen, defaultService]);
   const [submitted, setSubmitted] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [telegramLinked, setTelegramLinked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<FormState>>({});
 
@@ -88,6 +89,7 @@ export default function OrderModal() {
       if (res.ok) {
         const data = await res.json();
         setOrderId(data.orderId ?? null);
+        setTelegramLinked(!!data.telegramLinked);
       }
     } catch {
       // still show success — message will be retried next time
@@ -102,6 +104,7 @@ export default function OrderModal() {
       setForm(initialForm);
       setSubmitted(false);
       setOrderId(null);
+      setTelegramLinked(false);
       setErrors({});
     }, 300);
   };
@@ -149,7 +152,14 @@ export default function OrderModal() {
             </p>
 
             {/* Telegram tracking */}
-            {orderId && (
+            {telegramLinked ? (
+              <div className="w-full bg-[#0f2a1a] border border-[#22720C]/30 rounded-2xl p-4 flex items-center gap-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-[#229ED9] flex-shrink-0">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z" />
+                </svg>
+                <p className="text-sm text-green-400">Уведомление придёт в Telegram автоматически</p>
+              </div>
+            ) : orderId ? (
               <div className="w-full bg-[#0f1f2e] border border-[#1e3a5f] rounded-2xl p-4 flex flex-col gap-3">
                 <p className="text-sm text-blue-300 font-semibold">Отслеживайте статус в Telegram</p>
                 <p className="text-xs text-gray-400">
@@ -167,7 +177,7 @@ export default function OrderModal() {
                   Получить уведомление
                 </a>
               </div>
-            )}
+            ) : null}
 
             <button
               onClick={handleClose}

@@ -6,7 +6,7 @@ import { ModalContext } from "@/components/ModalContext";
 const services = [
   {
     slug: "podderzhivayushchaya",
-    photo: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80",
+    photo: "/services/support.png",
     title: "Поддерживающая уборка",
     subtitle: "Регулярная чистота без усилий",
     description:
@@ -28,7 +28,7 @@ const services = [
   },
   {
     slug: "generalnaya",
-    photo: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&q=80",
+    photo: "/services/general.png",
     title: "Генеральная уборка",
     subtitle: "Глубокая очистка каждого угла",
     description:
@@ -51,7 +51,7 @@ const services = [
   },
   {
     slug: "posle-remonta",
-    photo: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80",
+    photo: "/services/after-repair.png",
     title: "Уборка после ремонта",
     subtitle: "Устраним последствия строительства",
     description:
@@ -73,7 +73,7 @@ const services = [
   },
   {
     slug: "mojka-okon",
-    photo: "https://images.unsplash.com/photo-1527352774566-e4916e36c645?auto=format&fit=crop&w=800&q=80",
+    photo: "/services/windows.png",
     title: "Мойка окон и витрин",
     subtitle: "Идеально чисто без разводов",
     description:
@@ -94,7 +94,7 @@ const services = [
   },
   {
     slug: "ofisy",
-    photo: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80",
+    photo: "/services/office.png",
     title: "Уборка офисов и коммерческих помещений",
     subtitle: "Чистота = продуктивность",
     description:
@@ -116,7 +116,7 @@ const services = [
   },
   {
     slug: "magaziny",
-    photo: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=800&q=80",
+    photo: "/services/store.png",
     title: "Уборка магазинов",
     subtitle: "Торговые залы в блеске",
     description:
@@ -138,7 +138,7 @@ const services = [
   },
   {
     slug: "poly-plitka",
-    photo: "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=800&q=80",
+    photo: "/services/floor.png",
     title: "Мытьё полов и чистка плитки",
     subtitle: "Швы и покрытия как новые",
     description:
@@ -159,7 +159,7 @@ const services = [
   },
   {
     slug: "khimchistka",
-    photo: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80",
+    photo: "/services/furniture.png",
     title: "Химчистка мебели и ковров",
     subtitle: "Свежесть и чистота в каждом волокне",
     description:
